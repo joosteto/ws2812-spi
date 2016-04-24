@@ -4,23 +4,24 @@ using the hardware SPI MOSI.
 
 
 Connections from the Raspberry to the WS2812:
-
+```
 WS2812     Raspbery
 GND   --   GND. At least one of pin 6, 9, 14, 20, 25
 DIN   --   MOSI, Pin 19, GPIO 10
 VCC   --   5V. At least one of pin 2 or 4
+```
 
 Of course the WS2812 can (should) be chained, the DOUT of the first
 connected to the DIN of the next, and so on.
 
 The spidev module can be obtained from:
 https://github.com/doceme/py-spidev
-*
+```
 git clone https://github.com/doceme/py-spidev.git
 cd py-spidev
 make
 make install
-
+```
 
 Then, this module can be tested using:
 python ws2812.py
