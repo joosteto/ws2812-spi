@@ -26,19 +26,20 @@ Then, this module can be tested using:
 python ws2812.py
 
 Sample program that uses the module:
-
+```
 import spidev
 import ws2812
 spi = spidev.SpiDev()
 spi.open(0,0)
 #write 4 WS2812's, with the following colors: red, green, blue, yellow
 write2812(spi, [[10,0,0], [0,10,0], [0,0,10], [10, 10, 0]])
-
+```
     
 ************
 Note: this module tries to use numpy, if available.
 Without numpy it still works, but is *really* slow (more than a second
 to update 300 LED's on a Raspberry Pi Zero).
 So, if possible, do:
-
+```
 sudo apt install python-numpy
+```
