@@ -27,6 +27,7 @@ def write2812_numpy8(spi,data):
     #print [hex(v) for v in tx]
     spi.xfer(tx.tolist(), int(8/1.25e-6))
     #spi.xfer(tx.tolist(), int(8e6))
+    
 def write2812_numpy4(spi,data):
     #print spi
     d=numpy.array(data).ravel()
@@ -37,13 +38,17 @@ def write2812_numpy4(spi,data):
         tx[3-ibit::4]=((d>>(2*ibit+1))&1)*0x60 + ((d>>(2*ibit+0))&1)*0x06 +  0x88
         #print [hex(v) for v in tx]
     #print [hex(v) for v in tx]
-    #spi.xfer(tx.tolist(), int(4/1.25e-6)) #works, but flashes (max white) on Zero
-    spi.xfer(tx.tolist(), int(4/1.15e-6))  #works, no flashes on Zero
+    #spi.xfer(tx.tolist(), int(4/1.25e-6)) #works, but flashes (max white) on Zero; Doesn't work on Zero (all ON)
+    spi.xfer(tx.tolist(), int(4/1.20e-6))  #works, no flashes on Zero, Works on Raspberry 3
+    #spi.xfer(tx.tolist(), int(4/1.15e-6))  #works, no flashes on Zero
     #spi.xfer(tx.tolist(), int(4/1.05e-6))  #works, no flashes on Zero
     #spi.xfer(tx.tolist(), int(4/.95e-6))  #works, no flashes on Zero
     #spi.xfer(tx.tolist(), int(4/.90e-6))  #works, no flashes on Zero
     #spi.xfer(tx.tolist(), int(4/.85e-6))  #doesn't work (first 4 LEDS work, others have flashing colors)
-    #spi.xfer(tx.tolist(), int(4/.65e-6))  #doesn't work
+    #spi.xfer(tx.tolist(), int(4/.65e-6))  #doesn't work on Zero; Works on Raspberry 3
+    #spi.xfer(tx.tolist(), int(4/.55e-6))  #doesn't work on Zero; Works on Raspberry 3
+    #spi.xfer(tx.tolist(), int(4/.50e-6))  #doesn't work on Zero; Doesn't work on Raspberry 3 (bright colors)
+    #spi.xfer(tx.tolist(), int(4/.45e-6))  #doesn't work on Zero; Doesn't work on Raspberry 3
     #spi.xfer(tx.tolist(), int(8e6))
 
 def write2812_pylist8(spi, data):
@@ -76,64 +81,25 @@ else:
 if __name__=="__main__":
     import spidev
     import time
-    timeUse=0
-    nUse=0
-    totTimeUse=0
-    totNUse=0
-    def time_write2812(spi, data):
-        global timeUse, nUse, totTimeUse, totNUse
-        tStart=time.time()
-        #write2812_numpy4(spi, data)       #8: 5.6ms;   300: 18ms
-        write2812_numpy8(spi, data)        #8: 6.1ms;   150: 13ms
-        #write2812_pylist4(spi, data)      #8: 54ms;   300: 1860ms
-        #write2812_pylist8(spi, data)      #8: 53ms;   150: 986ms
-        timeUse+=time.time()-tStart
-        nUse+=1
-        if nUse>200:
-            totTimeUse+=timeUse
-            totNUse+=nUse
-            print "av execute time: {0}, last few: {1}".format(1000*totTimeUse/totNUse,1000*timeUse/nUse)
-            nUse=0
-            timeUse=0
-
-    def test_pattern_sin(spi):
-        n=150
-        tStart=time.time()
-        indices=numpy.array(range(n))*numpy.pi/7
-        period0=2
-        period1=2.1
-        period2=2.2
-        while True:
-            t=tStart-time.time()
-            #t=1.1
-            f=numpy.zeros((n,3))
-            f[:,0]=sin(2*pi*t/period0+indices)
-            f[:,1]=sin(2*pi*t/period1+indices)
-            f[:,2]=sin(2*pi*t/period2+indices)
-            f=20*((f+1.01)/2.02)
-            fi=numpy.array(f, dtype=numpy.uint8)
-            #print fi[0]
-            #time_write2812(spi, fi)
-            write2812(spi, fi)
-            time.sleep(0.01)
-            
+    import getopt
     def test_fixed(spi):
         #write fixed pattern for 8 LEDs
-        write2812(spi, numpy.array([[10,0,0],
-                                    [0,10,0],
-                                    [0,0,10],
-                                    [10,0,0],
-                                    
-                                    [10,0,0],
-                                    [10,0,0],
-                                    [10,0,0],
-                                    [10,0,0]], dtype=numpy.uint8)
-        )
+        #This will send the following colors:
+        #   Red, Green, Blue,
+        #   Purple, Cyan, Yellow,
+        #   Black(off), White 
+        write2812(spi, [[10,0,0], [0,10,0], [0,0,10], [0,10,10],
+                        [10,0,10], [10,10,0], [0,0,0], [10,10,10]])
+    def test_off(spi, nLED=8):
+        #switch all nLED chips OFF.
+        write2812(spi, [[0,0,0]]*nLED)
+
+        
         
     spi = spidev.SpiDev()
     spi.open(0,0)
     
-    test_pattern_sin(spi)
-    #test_fixed(spi)
+    #test_pattern_sin(spi, nLED=8, intensity=25)
+    test_fixed(spi)
 
 
