@@ -1,0 +1,42 @@
+import spidev
+import ws2812
+import time
+import getopt
+import numpy
+from numpy import exp, sin, pi
+
+def test_gauss(spi, shape=(8,8), intensity=20):
+    
+    stepTime=0.05
+    nLED=shape[0]*shape[1]
+    index_i=numpy.array(range(nLED))%shape[0]
+    index_j=numpy.array(range(nLED))/shape[0]
+    mid_i=shape[0]/2.
+    mid_j=shape[1]/2.
+    period_i,period_j=3,3.1
+    ri,rj=2,2
+    tStart=time.time()
+    try:
+        while True:
+            t=time.time()-tStart
+            mi=mid_i+sin(2*pi*t/period_i)*ri
+            mj=mid_j+sin(2*pi*t/period_j)*rj
+            rg0=3*sin(2*pi*t/3.2)**2
+            rg1=3*sin(2*pi*t/3.3)**2
+            rg2=3*sin(2*pi*t/3.4)**2
+            d=numpy.zeros((nLED,3))
+            d[:,0]=exp(-((index_i-mi)/rg0)**2)*exp(-((index_j-mj)/rg0)**2)
+            d[:,1]=exp(-((index_i-mi)/rg1)**2)*exp(-((index_j-mj)/rg1)**2)
+            d[:,2]=exp(-((index_i-mi)/rg2)**2)*exp(-((index_j-mj)/rg2)**2)
+            di=numpy.array(d*intensity, dtype=numpy.uint32)
+            
+            ws2812.write2812(spi, di)
+            time.sleep(stepTime)
+            
+    except KeyboardInterrupt:
+        ws2812.write2812(spi, [[0,0,0]]*(shape[0]*shape[1]))
+if __name__=="__main__":
+    spi = spidev.SpiDev()
+    spi.open(0,0)  
+  
+    test_gauss(spi, shape=(8,9), intensity=25)

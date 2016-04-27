@@ -88,8 +88,9 @@ if __name__=="__main__":
         #   Red, Green, Blue,
         #   Purple, Cyan, Yellow,
         #   Black(off), White 
-        write2812(spi, [[10,0,0], [0,10,0], [0,0,10], [0,10,10],
-                        [10,0,10], [10,10,0], [0,0,0], [10,10,10]])
+        write2812(spi, [[10,0,0], [0,10,0], [0,0,10],
+                        [0,10,10], [10,0,10], [10,10,0],
+                        [0,0,0], [10,10,10]])
     def test_off(spi, nLED=8):
         #switch all nLED chips OFF.
         write2812(spi, [[0,0,0]]*nLED)

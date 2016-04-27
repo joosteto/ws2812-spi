@@ -8,7 +8,7 @@ from numpy import sin, pi
 
 def test_pattern_sin(spi, nLED=8, intensity=20):
     tStart=time.time()
-    indices=numpy.array(range(nLED))*numpy.pi/nLED
+    indices=4*numpy.array(range(nLED), dtype=numpy.uint32)*numpy.pi/nLED
     period0=2
     period1=2.1
     period2=2.2
@@ -29,11 +29,14 @@ def test_pattern_sin(spi, nLED=8, intensity=20):
     except KeyboardInterrupt:
         test_off(spi, nLED)
 
+def test_off(spi, nLED):
+    ws2812.write2812(spi, [0,0,0]*nLED)
+
 if __name__=="__main__":
     spi = spidev.SpiDev()
     spi.open(0,0)
     
-    test_pattern_sin(spi, nLED=50, intensity=255)
+    test_pattern_sin(spi, nLED=64+8, intensity=25)
     #test_fixed(spi)
 
 
