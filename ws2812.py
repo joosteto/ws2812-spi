@@ -38,8 +38,8 @@ def write2812_numpy4(spi,data):
         tx[3-ibit::4]=((d>>(2*ibit+1))&1)*0x60 + ((d>>(2*ibit+0))&1)*0x06 +  0x88
         #print [hex(v) for v in tx]
     #print [hex(v) for v in tx]
-    #spi.xfer(tx.tolist(), int(4/1.25e-6)) #works, but flashes (max white) on Zero; Doesn't work on Zero (all ON)
-    spi.xfer(tx.tolist(), int(4/1.20e-6))  #works, no flashes on Zero, Works on Raspberry 3
+    spi.xfer(tx.tolist(), int(4/1.25e-6)) #works, on Zero (initially didn't?)
+    #spi.xfer(tx.tolist(), int(4/1.20e-6))  #works, no flashes on Zero, Works on Raspberry 3
     #spi.xfer(tx.tolist(), int(4/1.15e-6))  #works, no flashes on Zero
     #spi.xfer(tx.tolist(), int(4/1.05e-6))  #works, no flashes on Zero
     #spi.xfer(tx.tolist(), int(4/.95e-6))  #works, no flashes on Zero
@@ -82,6 +82,8 @@ if __name__=="__main__":
     import spidev
     import time
     import getopt
+    import sys
+
     def test_fixed(spi):
         #write fixed pattern for 8 LEDs
         #This will send the following colors:
@@ -94,13 +96,38 @@ if __name__=="__main__":
     def test_off(spi, nLED=8):
         #switch all nLED chips OFF.
         write2812(spi, [[0,0,0]]*nLED)
+    
+    
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hn:c:t", ["help", "color=", "test"])
+    except getopt.GetoptError as err:
+        # print help information and exit:
+        print str(err) # will print something like "option -a not recognized"
+        usage()
+        sys.exit(2)
+    color=None
+    nLED=8
+    doTest=False
+    for o, a in opts:
+        if o in ("-h", "--help"):
+            usage()
+            sys.exit()
+        elif o in ("-c", "--color"):
+            color=a
+        elif o in ("-n", "--nLED"):
+            nLED=int(a)
+        elif o in ("-t", "--test"):
+            doTest=True
+            assert False, "unhandled option"
 
-        
-        
     spi = spidev.SpiDev()
     spi.open(0,0)
-    
-    #test_pattern_sin(spi, nLED=8, intensity=25)
-    test_fixed(spi)
+
+    if color!=None:
+        write2812(spi, eval(color)*nLED)
+    elif doTest:
+        test_fixed(spi, nLED)
+    else:
+        usage()
 
 

@@ -36,7 +36,7 @@ if __name__=="__main__":
     spi = spidev.SpiDev()
     spi.open(0,0)
     
-    test_pattern_sin(spi, nLED=64+8, intensity=25)
+    test_pattern_sin(spi, nLED=8, intensity=255)
     #test_fixed(spi)
 
 

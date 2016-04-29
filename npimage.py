@@ -21,13 +21,14 @@ def test_gauss(spi, shape=(8,8), intensity=20):
             t=time.time()-tStart
             mi=mid_i+sin(2*pi*t/period_i)*ri
             mj=mid_j+sin(2*pi*t/period_j)*rj
-            rg0=3*sin(2*pi*t/3.2)**2
-            rg1=3*sin(2*pi*t/3.3)**2
-            rg2=3*sin(2*pi*t/3.4)**2
+            rg0=2*(sin(2*pi*t/6.2)+1)
+            rg1=2*(sin(2*pi*t/6.3)+1)
+            rg2=2*(sin(2*pi*t/6.4)+1)
+            distances2=((index_i-mi)**2+(index_j-mj)**2)
             d=numpy.zeros((nLED,3))
-            d[:,0]=exp(-((index_i-mi)/rg0)**2)*exp(-((index_j-mj)/rg0)**2)
-            d[:,1]=exp(-((index_i-mi)/rg1)**2)*exp(-((index_j-mj)/rg1)**2)
-            d[:,2]=exp(-((index_i-mi)/rg2)**2)*exp(-((index_j-mj)/rg2)**2)
+            d[:,0]=exp(-distances2/rg0**2)
+            d[:,1]=exp(-distances2/rg1**2)
+            d[:,2]=exp(-distances2/rg2**2)
             di=numpy.array(d*intensity, dtype=numpy.uint32)
             
             ws2812.write2812(spi, di)
