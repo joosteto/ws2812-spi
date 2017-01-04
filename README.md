@@ -7,6 +7,8 @@ a normal GPIO line with python (an interrupt on the raspberry would screw things
 Thats' why this module uses the hardware SPI MOSI line, this does confirm to the
 timing requirements.
 
+More info on the WS2812: https://wp.josh.com/2014/05/13/ws2812-neopixels-are-not-so-finicky-once-you-get-to-know-them/
+
 # Wiring of WS2812-Raspberry #
 Connections from the Raspberry to the WS2812:
 ```
